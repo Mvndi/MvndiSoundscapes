@@ -29,16 +29,9 @@ class SoundscapeTask : Runnable {
             player!!.scheduler.run(MvndiSoundscapes.plugin!!, {
                 val pdc = player.persistentDataContainer
                 if (player.location.world.name == "aether") {
-                    if (!pdc.has(MvndiSoundscapes.AETHER_KEY!!) || (pdc.has(MvndiSoundscapes.AETHER_KEY!!) && pdc.get(
-                            MvndiSoundscapes.AETHER_KEY!!, PersistentDataType.INTEGER
-                        ) == 0)
-                    ) {
-                        player.playSound(
-                            player, "mvndicraft:soundscapes.soundtrack.spawn", SoundCategory.MUSIC, 1.2f, 1.0f
-                        )
-                        pdc.set(MvndiSoundscapes.AETHER_KEY!!, PersistentDataType.INTEGER, 1)
-                    }
-                    return@run
+                    if (MvndiSoundscapes.moved.contains(player.uniqueId))
+                        MvndiSoundscapes.aetherPdc(pdc, player)
+                    return@run;
                 }
 
                 val to = player.location
