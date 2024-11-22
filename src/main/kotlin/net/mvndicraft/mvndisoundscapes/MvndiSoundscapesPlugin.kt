@@ -13,8 +13,8 @@ class MvndiSoundscapesPlugin : JavaPlugin() {
         // Plugin startup logic
         logger.info("Enabling MvndiSoundscapes")
         MvndiSoundscapes.initialize(this)
-        server.globalRegionScheduler.runAtFixedRate(this, {SoundscapeTask().run()}, 60L, 10L)
-        server.globalRegionScheduler.runAtFixedRate(this, {ResetSoundscapesTask().run()}, 120L, 1L)
+        server.globalRegionScheduler.runAtFixedRate(this, {SoundscapeTask().run()}, 1L, 10L)
+        server.globalRegionScheduler.runAtFixedRate(this, {ResetSoundscapesTask().run()}, 6000L, 1L)
 
         val pm = Bukkit.getPluginManager()
         if (!pm.isPluginEnabled("MvndiSeasons")) {
