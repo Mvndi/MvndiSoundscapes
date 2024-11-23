@@ -1,47 +1,38 @@
 package net.mvndicraft.mvndisoundscapes
 
 import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
-import org.bukkit.Bukkit
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import kotlin.math.absoluteValue
-import kotlin.math.truncate
 
 class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
-    public fun run(player: Player) {
-        val to = player.location
+    fun run(player: Player) {
         val uuid = player.uniqueId
         val delay = 8000L
         val lastAmbient = plugin.lastAmbient
 
-        if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < delay)
-            return
-
-        var mvndiBiomeName = ""
-        if (Bukkit.getPluginManager().isPluginEnabled("MvndiSeasons")) {
-            mvndiBiomeName = NMSBiomeUtils.getBiomeKeyString(player.location)
-        }
+        if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < delay) return
 
         val time = player.world.time
         val day = (time in 12000..22999)
         val lower = (time in 12000..12500) || (time in 13000..22999)
 
-        var biomeName = to.block.biome.key.value()
-        var ns = to.block.biome.key.namespace
-        if (ns.lowercase() == "minecraft")
-            biomeName = mvndiBiomeName
-        biomeName = biomeName.uppercase()
         var playedAmbient = false
+
+        val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
 
         val volume = getVolume(false, player)
 
-        if (biomeName.contains("PLAINS")) {
+        if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_plains")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.ambient.surface.plains", SoundCategory.AMBIENT, volume, 1.0f
             )
             playedAmbient = true
-        } else if (biomeName.contains("FOREST")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_forest") || NMSBiomeUtils.matchTag(
+                biomeKey, "mvndi:central_europe"
+            )
+        ) {
             if (day) {
                 player.playSound(
                     player,
@@ -60,7 +51,7 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 )
             }
             playedAmbient = true
-        } else if (biomeName.contains("DESERT")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_desert")) {
             if (day) {
                 player.playSound(
                     player,
@@ -79,7 +70,10 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 )
             }
             playedAmbient = true
-        } else if (biomeName.contains("DESERT")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_ocean") || NMSBiomeUtils.matchTag(
+                biomeKey, "mvndi:is_deep_ocean"
+            )
+        ) {
             player.playSound(
                 player,
                 "mvndicraft:soundscapes.ambient.surface.sea.loop",
@@ -88,12 +82,12 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 1.0f
             )
             playedAmbient = true
-        } else if (biomeName.contains("SNOW")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_snowy")) {
             if (player.world.hasStorm()) player.playSound(
                 player, "mvndicraft:soundscapes.ambient.surface.weather.snowy", SoundCategory.AMBIENT, volume, 1.0f
             )
             playedAmbient = true
-        } else if (biomeName.contains("BEACH")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_beach")) {
             player.playSound(
                 player,
                 "mvndicraft:soundscapes.ambient.surface.beach.loop",
@@ -102,7 +96,7 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 1.0f
             )
             playedAmbient = true
-        } else if (biomeName.contains("SWAMP")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_swamp")) {
             if (day) {
                 player.playSound(
                     player,
@@ -113,16 +107,20 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 )
             } else {
                 player.playSound(
-                    player, "mvndicraft:soundscapes.ambient.surface.swamp.night_loop", SoundCategory.AMBIENT, volume, 1.0f
+                    player,
+                    "mvndicraft:soundscapes.ambient.surface.swamp.night_loop",
+                    SoundCategory.AMBIENT,
+                    volume,
+                    1.0f
                 )
             }
             playedAmbient = true
-        } else if (biomeName.contains("RIVER")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_river")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.ambient.surface.river.loop", SoundCategory.AMBIENT, 1.0f, 1.0f
             )
             playedAmbient = true
-        } else if (biomeName.contains("CAVE")) {
+        } else if (player.location.y < 20 && MvndiSoundscapes.airCount(player.location, 8) >= 64) {
             val rand = (Math.random() * ((4) + 1)).toInt()
             if (rand == 0) player.playSound(
                 player, "mvndicraft:soundscapes.ambient.caves.loop1", SoundCategory.AMBIENT, volume, 1.0f
@@ -147,14 +145,12 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
         }
 
         // get volume based on y
-        public fun getVolume(wind: Boolean, player: Player) : Float {
+        public fun getVolume(wind: Boolean, player: Player): Float {
             val y = player.location.y
-            if (y < 100 && wind)
-                return 0.0f
+            if (y < 100 && wind) return 0.0f
 
             val f = lerp(0.0f, 1.0f, (y.toFloat().absoluteValue / 256))
-            if (wind)
-                return String.format("%.1f", f).toFloat()
+            if (wind) return String.format("%.1f", f).toFloat()
             return 1.0f - String.format("%.1f", f).toFloat()
         }
     }

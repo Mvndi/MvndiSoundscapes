@@ -10,15 +10,15 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class MvndiSoundscapes : JavaPlugin(), Listener {
-    val delay = 420000L
+    private val delay = 420000L
     val lastAmbient = ConcurrentHashMap<UUID, Long>()
-    val lastPlayed = ConcurrentHashMap<UUID, Long>()
+    private val lastPlayed = ConcurrentHashMap<UUID, Long>()
     val lastWind = ConcurrentHashMap<UUID, Long>()
-    var soundscapes = mapOf(
+    private var soundscapes = mapOf(
         "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
         "arabian" to "mvndicraft:soundscapes.soundtrack.egypt",
         "greece" to "mvndicraft:soundscapes.soundtrack.greece",
@@ -46,7 +46,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             Bukkit.getOnlinePlayers().forEach { player ->
                 player.scheduler.run(this, {
                     ambience.run(player)
-                    wind.run(player)
+                    if (player.location.world.name != "aether") wind.run(player)
                 }, null)
             }
         }, 1L, 1L)
@@ -78,48 +78,49 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             return
         }
 
-        var mvndiBiomeName = ""
-        if (Bukkit.getPluginManager().isPluginEnabled("MvndiSeasons")) {
-            mvndiBiomeName = NMSBiomeUtils.getBiomeKeyString(player.location)
 
-            for (soundscape in soundscapes.keys) {
+        val mvndiBiomeName = NMSBiomeUtils.getBiomeKeyString(player.location)
+
+        for (soundscape in soundscapes.keys) {
+            if (mvndiBiomeName != null) {
                 if (mvndiBiomeName.contains(soundscape)) {
                     player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 0.5f, 1.0f)
                     lastPlayed[uuid] = System.currentTimeMillis()
                     return
                 }
             }
-            return
         }
 
+        val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
+        var playedMusic = false
 
-        var biomeName = to.block.biome.name
-        if (biomeName.lowercase() == "custom")
-            biomeName = mvndiBiomeName
-        biomeName = biomeName.uppercase()
-        var playedMusic = false;
-
-        if (biomeName.contains("PLAINS")) {
+        if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_plains")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.plains", SoundCategory.MUSIC, 1.2f, 1.0f
             )
             playedMusic = true
-        } else if (biomeName.contains("FOREST")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_forest") || NMSBiomeUtils.matchTag(
+                biomeKey, "mvndi:central_europe"
+            )
+        ) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.forest", SoundCategory.MUSIC, 1.2f, 1.0f
             )
             playedMusic = true
-        } else if (biomeName.contains("DESERT")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_desert")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.desert", SoundCategory.MUSIC, 1.2f, 1.0f
             )
             playedMusic = true
-        } else if (biomeName.contains("DESERT")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_ocean") || NMSBiomeUtils.matchTag(
+                biomeKey, "mvndi:is_deep_ocean"
+            )
+        ) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.ocean", SoundCategory.MUSIC, 3.0f, 1.0f
             )
             playedMusic = true
-        } else if (biomeName.contains("SNOW")) {
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_snowy")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.snowy", SoundCategory.MUSIC, 1.2f, 1.0f
             )
@@ -130,7 +131,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     }
 
     companion object {
-        public fun airCount(loc: Location, radius: Int): Int {
+        fun airCount(loc: Location, radius: Int): Int {
             var count = 0
 
             for (x in loc.blockX - radius..loc.blockX + radius) {

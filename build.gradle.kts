@@ -34,7 +34,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    compileOnly("net.mvndicraft:mvndiseasons:0.8.5-SNAPSHOT")
+    compileOnly("net.mvndicraft:mvndiseasons:0.9.0-SNAPSHOT")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.107.0")
 }

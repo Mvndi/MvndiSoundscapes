@@ -10,4 +10,4 @@ dependencies:
   server:
     MvndiSeasons:
       load: BEFORE
-      required: false
+      required: true
