@@ -4,6 +4,7 @@ import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
@@ -74,9 +75,13 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 biomeKey, "mvndi:is_deep_ocean"
             )
         ) {
+            var soundKey = "mvndicraft:sandstorms.weak_wind"
+            if (Random.nextDouble() > 0.75) {
+                soundKey = "mvndicraft:sandstorms.strong_wind"
+            }
             player.playSound(
                 player,
-                "mvndicraft:soundscapes.ambient.surface.sea.loop",
+                soundKey,
                 SoundCategory.AMBIENT,
                 if (lower) 0.15f * volume else 1.2f * volume,
                 1.0f

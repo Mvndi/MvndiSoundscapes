@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.0-Beta2"
+    kotlin("plugin.serialization") version "2.0.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     `maven-publish`
     id("xyz.jpenilla.run-paper") version "2.3.1" // Paper server for testing/hotloading JVM
@@ -36,9 +37,10 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    compileOnly("com.gmail.goosius:SiegeWar:2.8.1")
+    compileOnly("com.github.TownyAdvanced:SiegeWar:2.13.0")
     compileOnly("net.mvndicraft:mvndiseasons:0.9.0-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.107.0")
 }
