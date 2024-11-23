@@ -19,6 +19,7 @@ val mvndiRemote = repositories.maven("https://repo.mvndicraft.net/repository/mav
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 
     // Paper
@@ -27,14 +28,17 @@ repositories {
     // Kotlin
     maven("https://oss.sonatype.org/content/groups/public/")
 
+    maven("https://jitpack.io")
+
     // Mvndi
     mvndiRemote
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compileOnly("com.gmail.goosius:SiegeWar:2.8.1")
     compileOnly("net.mvndicraft:mvndiseasons:0.9.0-SNAPSHOT")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.107.0")
 }

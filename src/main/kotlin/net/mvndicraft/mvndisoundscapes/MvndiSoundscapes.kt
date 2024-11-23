@@ -1,5 +1,6 @@
 package net.mvndicraft.mvndisoundscapes
 
+import com.gmail.goosius.siegewar.SiegeWarAPI
 import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -94,7 +95,12 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
         var playedMusic = false
 
-        if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_plains")) {
+        if (SiegeWarAPI.getSiege(player).isPresent) {
+            player.playSound(
+                player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 1.0f, 1.0f
+            )
+            playedMusic = true
+        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_plains")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.plains", SoundCategory.MUSIC, 1.2f, 1.0f
             )
@@ -123,6 +129,11 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_snowy")) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.snowy", SoundCategory.MUSIC, 1.2f, 1.0f
+            )
+            playedMusic = true
+        } else if (player.location.y < 20 && MvndiSoundscapes.airCount(player.location, 8) >= 64) {
+            player.playSound(
+                player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 1.0f, 1.0f
             )
             playedMusic = true
         }

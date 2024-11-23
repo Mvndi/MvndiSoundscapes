@@ -15,7 +15,7 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
         if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < delay) return
 
         val time = player.world.time
-        val day = (time in 12000..22999)
+        val day = time in 1..12299
         val lower = (time in 12000..12500) || (time in 13000..22999)
 
         var playedAmbient = false
