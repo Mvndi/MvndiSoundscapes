@@ -77,6 +77,6 @@ publishing {
     }
     publications.create<MavenPublication>("maven") {
         from(components["java"])
-        artifactId = "templatepluginkt"
+        artifactId = "mvndisoundscapes"
     }
 }
