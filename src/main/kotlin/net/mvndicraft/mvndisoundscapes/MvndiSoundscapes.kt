@@ -8,6 +8,7 @@ import org.bukkit.SoundCategory
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -34,6 +35,15 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     override fun onDisable() {
         // Plugin shutdown logic
         logger.info("Disabling MvndiSoundscapes")
+    }
+
+    @EventHandler
+    fun onPlayerQuit(event: PlayerQuitEvent) {
+        val player = event.player
+        val uuid = player.uniqueId
+        lastAmbient.remove(uuid)
+        lastPlayed.remove(uuid)
+        lastWind.remove(uuid)
     }
 
     @EventHandler
