@@ -1,6 +1,6 @@
 name: $name
 version: $version
-main: net.mvndicraft.mvndisoundscapes.MvndiSoundscapesPlugin
+main: net.mvndicraft.mvndisoundscapes.MvndiSoundscapes
 api-version: '1.21'
 authors: [ tlm920 ]
 description: Core plugin for minigame management on Mvndicraft
