@@ -8,6 +8,9 @@ website: mvndicraft.net
 folia-supported: true
 dependencies:
   server:
+    SiegeWar:
+      load: BEFORE
+      required: false
     MvndiSeasons:
       load: BEFORE
       required: true

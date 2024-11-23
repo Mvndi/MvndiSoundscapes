@@ -15,7 +15,6 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class MvndiSoundscapes : JavaPlugin(), Listener {
-    private val delay = 420000L
     val lastAmbient = ConcurrentHashMap<UUID, Long>()
     private val lastPlayed = ConcurrentHashMap<UUID, Long>()
     val lastWind = ConcurrentHashMap<UUID, Long>()
@@ -66,12 +65,11 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     fun onPlayerFirstMove(event: PlayerMoveEvent) {
         val player = event.player
         val uuid = player.uniqueId
-        val to = player.location
+        val aether = player.location.world.name == "aether"
 
+        if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 50000 else 420000L) return
 
-        if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < delay) return
-
-        if (player.location.world.name == "aether") {
+        if (aether) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.spawn", SoundCategory.MUSIC, 1.2f, 1.0f
             )
@@ -95,7 +93,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
         var playedMusic = false
 
-        if (SiegeWarAPI.getSiege(player).isPresent) {
+        if (Bukkit.getPluginManager().isPluginEnabled("SiegeWar") && SiegeWarAPI.getSiege(player).isPresent) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 1.0f, 1.0f
             )
