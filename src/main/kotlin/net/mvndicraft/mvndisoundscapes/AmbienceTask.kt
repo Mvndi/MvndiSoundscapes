@@ -9,12 +9,11 @@ import kotlin.math.absoluteValue
 class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
     private var ambience = mapOf(
+        "mvndi:is_snowy" to "mvndicraft:soundscapes.ambient.surface.weather.snowy",
         "mvndi:is_plains" to "mvndicraft:soundscapes.ambient.surface.plains",
         "minecraft:is_forest" to "mvndicraft:soundscapes.ambient.surface.forest.day_loop",
         "mvndi:is_desert" to "mvndicraft:soundscapes.ambient.surface.desert.day_loop",
         "minecraft:is_ocean" to "mvndicraft:soundscapes.ambient.surface.sea.loop",
-        "mvndi:is_deep_ocean" to "mvndicraft:soundscapes.ambient.surface.sea.loop",
-        "mvndi:is_snowy" to "mvndicraft:soundscapes.ambient.surface.weather.snowy",
         "mvndi:is_swamp" to "mvndicraft:soundscapes.ambient.surface.swamp.day_loop",
         "minecraft:is_river" to "mvndicraft:soundscapes.ambient.surface.river.loop",
         "minecraft:is_beach" to "mvndicraft:soundscapes.ambient.surface.beach.loop",

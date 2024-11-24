@@ -19,20 +19,19 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     private val lastPlayed = ConcurrentHashMap<UUID, Long>()
     val lastWind = ConcurrentHashMap<UUID, Long>()
     private var soundscapes = mapOf(
+        "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
+        "arabian" to "mvndicraft:soundscapes.soundtrack.egypt",
+        "greece" to "mvndicraft:soundscapes.soundtrack.greece",
+        "italy" to "mvndicraft:soundscapes.soundtrack.italy",
         "mvndi:is_plains" to "mvndicraft:soundscapes.soundtrack.plains",
-        "minecraft:is_forest" to "mvndicraft:soundscapes.soundtrack.forest",
         "mvndi:central_europe" to "mvndicraft:soundscapes.soundtrack.germany",
+        "minecraft:is_forest" to "mvndicraft:soundscapes.soundtrack.forest",
         "mvndi:is_desert" to "mvndicraft:soundscapes.soundtrack.desert",
         "mvndi:is_mountain" to "mvndicraft:soundscapes.soundtrack.mountain",
         "mvndi:is_hill" to "mvndicraft:soundscapes.soundtrack.mountains",
         "minecraft:is_ocean" to "mvndicraft:soundscapes.soundtrack.ocean",
         "mvndi:is_snowy" to "mvndicraft:soundscapes.soundtrack.snowy",
-        // the above are tags with matchTag and have priority over the patterns below which we check if they are in the biome name if there was no matchTag (see line 111)
-        "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
-        "arabian" to "mvndicraft:soundscapes.soundtrack.egypt",
-        "greece" to "mvndicraft:soundscapes.soundtrack.greece",
-        "italy" to "mvndicraft:soundscapes.soundtrack.italy",
-        "german" to "mvndicraft:soundscapes.soundtrack.germany",
+        "mvndi:mediterranean_coast" to "mvndicraft:soundscapes.soundtrack.greece",
     )
 
     override fun onEnable() {
@@ -86,8 +85,6 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             return
         }
 
-
-        val mvndiBiomeName = NMSBiomeUtils.getBiomeKeyString(player.location)
         val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
 
         if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
@@ -106,9 +103,9 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             return
         }
 
-        for (soundscape in soundscapes.keys) if (mvndiBiomeName != null) if (NMSBiomeUtils.matchTag(
+        for (soundscape in soundscapes.keys) if (biomeKey != null) if (biomeKey.contains(soundscape) || NMSBiomeUtils.matchTag(
                 biomeKey, soundscape
-            ) || mvndiBiomeName.contains(soundscape)
+            )
         ) {
             player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 2.0f, 1.0f)
             lastPlayed[uuid] = System.currentTimeMillis()
