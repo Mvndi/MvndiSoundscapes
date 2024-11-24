@@ -129,7 +129,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 player, "mvndicraft:soundscapes.soundtrack.snowy", SoundCategory.MUSIC, 1.2f, 1.0f
             )
             playedMusic = true
-        } else if (player.location.y < 20 && MvndiSoundscapes.airCount(player.location, 8) >= 64) {
+        } else if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 64) {
             player.playSound(
                 player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 1.0f, 1.0f
             )
@@ -140,13 +140,13 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     }
 
     companion object {
-        fun airCount(loc: Location, radius: Int): Int {
+        fun blockCount(loc: Location, radius: Int, mat: Material): Int {
             var count = 0
 
             for (x in loc.blockX - radius..loc.blockX + radius) {
                 for (y in loc.blockY - radius..loc.blockY + radius) {
                     for (z in loc.blockZ - radius..loc.blockZ + radius) {
-                        if (loc.world.getBlockAt(x, y, z).type == Material.AIR) count++
+                        if (loc.world.getBlockAt(x, y, z).type == mat) count++
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package net.mvndicraft.mvndisoundscapes
 
+import org.bukkit.Material
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 
@@ -10,7 +11,7 @@ class WindTask(private val plugin: MvndiSoundscapes) {
         val to = player.location
         val uuid = player.uniqueId
         if (!lastWind.containsKey(uuid) || System.currentTimeMillis() - lastWind[uuid]!! >= delay) {
-            val airCount = MvndiSoundscapes.airCount(to, 8)
+            val airCount = MvndiSoundscapes.blockCount(to, 8, Material.AIR)
             plugin.lastWind[uuid] = System.currentTimeMillis()
             val windVolume = AmbienceTask.getVolume(true, player)
             if (windVolume == 0f) return

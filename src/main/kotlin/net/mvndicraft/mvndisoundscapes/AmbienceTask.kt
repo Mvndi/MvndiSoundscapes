@@ -1,6 +1,7 @@
 package net.mvndicraft.mvndisoundscapes
 
 import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
+import org.bukkit.Material
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import kotlin.math.absoluteValue
@@ -116,11 +117,13 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
             }
             playedAmbient = true
         } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_river")) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.ambient.surface.river.loop", SoundCategory.AMBIENT, 1.0f, 1.0f
-            )
+            if (MvndiSoundscapes.blockCount(player.location, 8, Material.WATER) >= 16) {
+                player.playSound(
+                    player, "mvndicraft:soundscapes.ambient.surface.river.loop", SoundCategory.AMBIENT, volume, 1.0f
+                )
+            }
             playedAmbient = true
-        } else if (player.location.y < 20 && MvndiSoundscapes.airCount(player.location, 8) >= 64) {
+        } else if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 64) {
             val rand = (Math.random() * ((4) + 1)).toInt()
             if (rand == 0) player.playSound(
                 player, "mvndicraft:soundscapes.ambient.caves.loop1", SoundCategory.AMBIENT, volume, 1.0f

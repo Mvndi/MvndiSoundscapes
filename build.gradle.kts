@@ -36,7 +36,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    compileOnly("com.gmail.goosius:SiegeWar:2.8.1")
+    compileOnly("com.github.TownyAdvanced:SiegeWar:2.13.0")
     compileOnly("net.mvndicraft:mvndiseasons:0.9.0-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
