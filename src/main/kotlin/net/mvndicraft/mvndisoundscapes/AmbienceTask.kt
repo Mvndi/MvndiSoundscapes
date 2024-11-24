@@ -33,21 +33,19 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
         if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < delay) return
 
-        val volume = getVolume(false, player)
-
-        if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 64) {
+        if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 16) {
             val rand = (Math.random() * ((4) + 1)).toInt()
             if (rand == 0) player.playSound(
-                player, "mvndicraft:soundscapes.ambient.caves.loop1", SoundCategory.AMBIENT, volume, 1.0f
+                player, "mvndicraft:soundscapes.ambient.caves.loop1", SoundCategory.AMBIENT, 0.05f, 0.15f
             )
             if (rand == 1) player.playSound(
-                player, "mvndicraft:soundscapes.ambient.caves.loop2", SoundCategory.AMBIENT, volume, 1.0f
+                player, "mvndicraft:soundscapes.ambient.caves.loop2", SoundCategory.AMBIENT, 0.05f, 1.0f
             )
             if (rand == 2) player.playSound(
-                player, "mvndicraft:soundscapes.ambient.caves.loop3", SoundCategory.AMBIENT, 1.0f, 1.0f
+                player, "mvndicraft:soundscapes.ambient.caves.loop3", SoundCategory.AMBIENT, 0.05f, 1.0f
             )
             if (rand == 3) player.playSound(
-                player, "mvndicraft:soundscapes.ambient.caves.loop4", SoundCategory.AMBIENT, 1.0f, 1.0f
+                player, "mvndicraft:soundscapes.ambient.caves.loop4", SoundCategory.AMBIENT, 0.05f, 1.0f
             )
             return
         }
@@ -62,7 +60,7 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
                 player,
                 if (!day && tag in nightAmbience) nightAmbience[tag]!! else ambience[tag]!!,
                 SoundCategory.AMBIENT,
-                0.5f,
+                getVolume(false, player),
                 1.0f
             )
             lastAmbient[uuid] = System.currentTimeMillis()
