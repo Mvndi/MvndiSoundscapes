@@ -8,6 +8,24 @@ import kotlin.math.absoluteValue
 
 class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
+    private var ambience = mapOf(
+        "mvndi:is_plains" to "mvndicraft:soundscapes.ambient.surface.plains",
+        "minecraft:is_forest" to "mvndicraft:soundscapes.ambient.surface.forest.day_loop",
+        "mvndi:is_desert" to "mvndicraft:soundscapes.ambient.surface.desert.day_loop",
+        "minecraft:is_ocean" to "mvndicraft:soundscapes.ambient.surface.sea.loop",
+        "mvndi:is_deep_ocean" to "mvndicraft:soundscapes.ambient.surface.sea.loop",
+        "mvndi:is_snowy" to "mvndicraft:soundscapes.ambient.surface.weather.snowy",
+        "mvndi:is_swamp" to "mvndicraft:soundscapes.ambient.surface.swamp.day_loop",
+        "minecraft:is_river" to "mvndicraft:soundscapes.ambient.surface.river.loop",
+        "minecraft:is_beach" to "mvndicraft:soundscapes.ambient.surface.beach.loop",
+    )
+
+    private var nightAmbience = mapOf(
+        "minecraft:is_forest" to "mvndicraft:soundscapes.ambient.surface.forest.night_loop",
+        "mvndi:is_desert" to "mvndicraft:soundscapes.ambient.surface.desert.night_loop",
+        "mvndi:is_swamp" to "mvndicraft:soundscapes.ambient.surface.swamp.night_loop",
+    )
+
     fun run(player: Player) {
         val uuid = player.uniqueId
         val delay = 8000L
@@ -15,115 +33,9 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
         if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < delay) return
 
-        val time = player.world.time
-        val day = time in 1..12299
-        val lower = (time in 12000..12500) || (time in 13000..22999)
-
-        var playedAmbient = false
-
-        val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
-
         val volume = getVolume(false, player)
 
-        if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_plains")) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.ambient.surface.plains", SoundCategory.AMBIENT, volume, 1.0f
-            )
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_forest") || NMSBiomeUtils.matchTag(
-                biomeKey, "mvndi:central_europe"
-            )
-        ) {
-            if (day) {
-                player.playSound(
-                    player,
-                    "mvndicraft:soundscapes.ambient.surface.forest.day_loop",
-                    SoundCategory.AMBIENT,
-                    if (lower) 0.15f * volume else 1.2f * volume,
-                    1.0f
-                )
-            } else {
-                player.playSound(
-                    player,
-                    "mvndicraft:soundscapes.ambient.surface.forest.night_loop",
-                    SoundCategory.AMBIENT,
-                    volume,
-                    1.0f
-                )
-            }
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_desert")) {
-            if (day) {
-                player.playSound(
-                    player,
-                    "mvndicraft:soundscapes.ambient.surface.desert.day_loop",
-                    SoundCategory.AMBIENT,
-                    if (lower) 0.15f * volume else 1.2f * volume,
-                    1.0f
-                )
-            } else {
-                player.playSound(
-                    player,
-                    "mvndicraft:soundscapes.ambient.surface.desert.night_loop",
-                    SoundCategory.AMBIENT,
-                    0.2f,
-                    1.0f
-                )
-            }
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_ocean") || NMSBiomeUtils.matchTag(
-                biomeKey, "mvndi:is_deep_ocean"
-            )
-        ) {
-            player.playSound(
-                player,
-                "mvndicraft:soundscapes.ambient.surface.sea.loop",
-                SoundCategory.AMBIENT,
-                if (lower) 0.15f * volume else 1.2f * volume,
-                1.0f
-            )
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_snowy")) {
-            if (player.world.hasStorm()) player.playSound(
-                player, "mvndicraft:soundscapes.ambient.surface.weather.snowy", SoundCategory.AMBIENT, volume, 1.0f
-            )
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_beach")) {
-            player.playSound(
-                player,
-                "mvndicraft:soundscapes.ambient.surface.beach.loop",
-                SoundCategory.AMBIENT,
-                if (lower) 0.1f * volume else 0.15f * volume,
-                1.0f
-            )
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_swamp")) {
-            if (day) {
-                player.playSound(
-                    player,
-                    "mvndicraft:soundscapes.ambient.surface.swamp.day_loop",
-                    SoundCategory.AMBIENT,
-                    if (lower) 0.15f * volume else 0.2f * volume,
-                    1.0f
-                )
-            } else {
-                player.playSound(
-                    player,
-                    "mvndicraft:soundscapes.ambient.surface.swamp.night_loop",
-                    SoundCategory.AMBIENT,
-                    volume,
-                    1.0f
-                )
-            }
-            playedAmbient = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_river")) {
-            if (MvndiSoundscapes.blockCount(player.location, 8, Material.WATER) >= 16) {
-                player.playSound(
-                    player, "mvndicraft:soundscapes.ambient.surface.river.loop", SoundCategory.AMBIENT, volume, 1.0f
-                )
-            }
-            playedAmbient = true
-        } else if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 64) {
+        if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 64) {
             val rand = (Math.random() * ((4) + 1)).toInt()
             if (rand == 0) player.playSound(
                 player, "mvndicraft:soundscapes.ambient.caves.loop1", SoundCategory.AMBIENT, volume, 1.0f
@@ -137,9 +49,25 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
             if (rand == 3) player.playSound(
                 player, "mvndicraft:soundscapes.ambient.caves.loop4", SoundCategory.AMBIENT, 1.0f, 1.0f
             )
-            playedAmbient = true
+            return
         }
-        if (playedAmbient) lastAmbient[uuid] = System.currentTimeMillis()
+
+        val time = player.world.time
+        val day = time in 1..12299
+        val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location) ?: return
+        for (tag in ambience.keys) {
+            if (!NMSBiomeUtils.matchTag(biomeKey, tag)) continue
+
+            player.playSound(
+                player,
+                if (!day && tag in nightAmbience) nightAmbience[tag]!! else ambience[tag]!!,
+                SoundCategory.AMBIENT,
+                0.5f,
+                1.0f
+            )
+            lastAmbient[uuid] = System.currentTimeMillis()
+            break
+        }
     }
 
     companion object {
@@ -148,7 +76,7 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
         }
 
         // get volume based on y
-        public fun getVolume(wind: Boolean, player: Player): Float {
+        fun getVolume(wind: Boolean, player: Player): Float {
             val y = player.location.y
             if (y < 100 && wind) return 0.0f
 

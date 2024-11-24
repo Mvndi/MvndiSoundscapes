@@ -19,11 +19,20 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     private val lastPlayed = ConcurrentHashMap<UUID, Long>()
     val lastWind = ConcurrentHashMap<UUID, Long>()
     private var soundscapes = mapOf(
+        "mvndi:is_plains" to "mvndicraft:soundscapes.soundtrack.plains",
+        "minecraft:is_forest" to "mvndicraft:soundscapes.soundtrack.forest",
+        "mvndi:central_europe" to "mvndicraft:soundscapes.soundtrack.germany",
+        "mvndi:is_desert" to "mvndicraft:soundscapes.soundtrack.desert",
+        "mvndi:is_mountain" to "mvndicraft:soundscapes.soundtrack.mountain",
+        "mvndi:is_hill" to "mvndicraft:soundscapes.soundtrack.mountains",
+        "minecraft:is_ocean" to "mvndicraft:soundscapes.soundtrack.ocean",
+        "mvndi:is_snowy" to "mvndicraft:soundscapes.soundtrack.snowy",
+        // the above are tags with matchTag and have priority over the patterns below which we check if they are in the biome name if there was no matchTag (see line 111)
         "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
         "arabian" to "mvndicraft:soundscapes.soundtrack.egypt",
         "greece" to "mvndicraft:soundscapes.soundtrack.greece",
         "italy" to "mvndicraft:soundscapes.soundtrack.italy",
-        "germany" to "mvndicraft:soundscapes.soundtrack.germany"
+        "german" to "mvndicraft:soundscapes.soundtrack.germany",
     )
 
     override fun onEnable() {
@@ -71,7 +80,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
 
         if (aether) {
             player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.spawn", SoundCategory.MUSIC, 1.2f, 1.0f
+                player, "mvndicraft:soundscapes.soundtrack.spawn", SoundCategory.MUSIC, 2.0f, 1.0f
             )
             lastPlayed[uuid] = System.currentTimeMillis()
             return
@@ -79,74 +88,42 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
 
 
         val mvndiBiomeName = NMSBiomeUtils.getBiomeKeyString(player.location)
-
-        for (soundscape in soundscapes.keys) {
-            if (mvndiBiomeName != null) {
-                if (mvndiBiomeName.contains(soundscape)) {
-                    player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 0.5f, 1.0f)
-                    lastPlayed[uuid] = System.currentTimeMillis()
-                    return
-                }
-            }
-        }
-
         val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
-        var playedMusic = false
+
+        if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
+            player.playSound(
+                player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 2.0f, 1.0f
+            )
+            lastPlayed[uuid] = System.currentTimeMillis()
+            return
+        }
 
         if (Bukkit.getPluginManager().isPluginEnabled("SiegeWar") && SiegeWarAPI.getSiege(player).isPresent) {
             player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 1.0f, 1.0f
+                player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 2.0f, 1.0f
             )
-            playedMusic = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_plains")) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.plains", SoundCategory.MUSIC, 1.2f, 1.0f
-            )
-            playedMusic = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_forest") || NMSBiomeUtils.matchTag(
-                biomeKey, "mvndi:central_europe"
-            )
-        ) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.forest", SoundCategory.MUSIC, 1.2f, 1.0f
-            )
-            playedMusic = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_desert")) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.desert", SoundCategory.MUSIC, 1.2f, 1.0f
-            )
-            playedMusic = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "minecraft:is_ocean") || NMSBiomeUtils.matchTag(
-                biomeKey, "mvndi:is_deep_ocean"
-            )
-        ) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.ocean", SoundCategory.MUSIC, 3.0f, 1.0f
-            )
-            playedMusic = true
-        } else if (NMSBiomeUtils.matchTag(biomeKey, "mvndi:is_snowy")) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.snowy", SoundCategory.MUSIC, 1.2f, 1.0f
-            )
-            playedMusic = true
-        } else if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 64) {
-            player.playSound(
-                player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 1.0f, 1.0f
-            )
-            playedMusic = true
+            lastPlayed[uuid] = System.currentTimeMillis()
+            return
         }
 
-        if (playedMusic) lastPlayed[uuid] = System.currentTimeMillis()
+        for (soundscape in soundscapes.keys) if (mvndiBiomeName != null) if (NMSBiomeUtils.matchTag(
+                biomeKey, soundscape
+            ) || mvndiBiomeName.contains(soundscape)
+        ) {
+            player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 2.0f, 1.0f)
+            lastPlayed[uuid] = System.currentTimeMillis()
+            return
+        }
     }
 
     companion object {
-        fun blockCount(loc: Location, radius: Int, mat: Material): Int {
+        fun blockCount(loc: Location, radius: Int, type: Material): Int {
             var count = 0
 
             for (x in loc.blockX - radius..loc.blockX + radius) {
                 for (y in loc.blockY - radius..loc.blockY + radius) {
                     for (z in loc.blockZ - radius..loc.blockZ + radius) {
-                        if (loc.world.getBlockAt(x, y, z).type == mat) count++
+                        if (loc.world.getBlockAt(x, y, z).type == type) count++
                     }
                 }
             }
