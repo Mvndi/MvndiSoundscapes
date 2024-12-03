@@ -86,6 +86,15 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         startedTasks.add(uuid)
 
         player.scheduler.runAtFixedRate(this, {
+            if (Bukkit.getPluginManager().isPluginEnabled("SiegeWar") && SiegeWarAPI.getSiege(player).isPresent) {
+                player.playSound(
+                    player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 2.0f, 1.0f
+                )
+                lastPlayed[uuid] = System.currentTimeMillis()
+                return@runAtFixedRate
+            }
+
+
             if (Bukkit.getPluginManager().isPluginEnabled("MvndiBattle") && BattleTracker.getInstance()
                     .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= 67000))
             ) {
@@ -112,14 +121,6 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
                 player.playSound(
                     player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 2.0f, 1.0f
-                )
-                lastPlayed[uuid] = System.currentTimeMillis()
-                return@runAtFixedRate
-            }
-
-            if (Bukkit.getPluginManager().isPluginEnabled("SiegeWar") && SiegeWarAPI.getSiege(player).isPresent) {
-                player.playSound(
-                    player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 2.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
