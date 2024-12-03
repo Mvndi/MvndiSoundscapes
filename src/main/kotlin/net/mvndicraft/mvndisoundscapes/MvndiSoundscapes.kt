@@ -94,7 +94,6 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 return@runAtFixedRate
             }
 
-
             if (Bukkit.getPluginManager().isPluginEnabled("MvndiBattle") && BattleTracker.getInstance()
                     .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= 67000))
             ) {
