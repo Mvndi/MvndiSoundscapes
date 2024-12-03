@@ -38,6 +38,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     compileOnly("com.github.TownyAdvanced:SiegeWar:2.13.0")
     compileOnly("net.mvndicraft:mvndiseasons:0.9.0-SNAPSHOT")
+    compileOnly("net.mvndicraft:mvndibattle:2.0.0-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.107.0")

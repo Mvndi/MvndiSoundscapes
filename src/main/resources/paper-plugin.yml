@@ -11,6 +11,9 @@ dependencies:
     SiegeWar:
       load: BEFORE
       required: false
+    MvndiBattle:
+      load: BEFORE
+      required: false
     MvndiSeasons:
       load: BEFORE
       required: true

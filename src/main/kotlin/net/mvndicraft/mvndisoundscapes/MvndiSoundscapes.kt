@@ -1,6 +1,7 @@
 package net.mvndicraft.mvndisoundscapes
 
 import com.gmail.goosius.siegewar.SiegeWarAPI
+import net.mvndicraft.mvndibattle.BattleTracker
 import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 class MvndiSoundscapes : JavaPlugin(), Listener {
     val lastAmbient = ConcurrentHashMap<UUID, Long>()
     private val lastPlayed = ConcurrentHashMap<UUID, Long>()
+    private val lastBattle = ConcurrentHashMap<UUID, Long>()
     val lastWind = ConcurrentHashMap<UUID, Long>()
     private var soundscapes = mapOf(
         "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
@@ -67,6 +69,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         lastAmbient.remove(uuid)
         lastPlayed.remove(uuid)
         lastWind.remove(uuid)
+        lastBattle.remove(uuid)
     }
 
     @EventHandler
@@ -74,6 +77,17 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         val player = event.player
         val uuid = player.uniqueId
         val aether = player.location.world.name == "aether"
+
+        if (Bukkit.getPluginManager().isPluginEnabled("MvndiBattle") && BattleTracker.getInstance()
+                .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= 67000))
+        ) {
+            player.stopSound(SoundCategory.MUSIC)
+            player.playSound(
+                player, "mvndicraft:soundscapes.soundtrack.battle", SoundCategory.MUSIC, 2.0f, 1.0f
+            )
+            lastBattle[uuid] = System.currentTimeMillis()
+            return
+        }
 
         if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 50000 else 420000L) return
 
