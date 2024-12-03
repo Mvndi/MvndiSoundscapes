@@ -72,6 +72,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         lastPlayed.remove(uuid)
         lastWind.remove(uuid)
         lastBattle.remove(uuid)
+        startedTasks.remove(uuid)
     }
 
     @EventHandler
