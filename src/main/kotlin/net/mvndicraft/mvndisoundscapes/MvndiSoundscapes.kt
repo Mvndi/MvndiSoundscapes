@@ -98,7 +98,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 return@runAtFixedRate
             }
 
-            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 40700 else 420000L) return@runAtFixedRate
+            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 41000 else 420000L) return@runAtFixedRate
 
             if (aether) {
                 player.playSound(
