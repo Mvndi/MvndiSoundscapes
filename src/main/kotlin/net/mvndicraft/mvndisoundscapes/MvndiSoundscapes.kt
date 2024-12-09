@@ -23,6 +23,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     val lastWind = ConcurrentHashMap<UUID, Long>()
     private val startedTasks = HashSet<UUID>()
     private var soundscapes = mapOf(
+        "mvndi:is_snowy" to "mvndicraft:soundscapes.soundtrack.snowy",
         "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
         "arabian" to "mvndicraft:soundscapes.soundtrack.egypt",
         "greece" to "mvndicraft:soundscapes.soundtrack.greece",
@@ -34,7 +35,6 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         "mvndi:is_mountain" to "mvndicraft:soundscapes.soundtrack.mountain",
         "mvndi:is_hill" to "mvndicraft:soundscapes.soundtrack.mountains",
         "minecraft:is_ocean" to "mvndicraft:soundscapes.soundtrack.ocean",
-        "mvndi:is_snowy" to "mvndicraft:soundscapes.soundtrack.snowy",
         "mvndi:mediterranean_coast" to "mvndicraft:soundscapes.soundtrack.greece",
     )
 
