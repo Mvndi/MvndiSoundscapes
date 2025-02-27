@@ -108,8 +108,6 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 return@runAtFixedRate
             }
 
-            val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
-
             if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
                 player.playSound(
                     player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 2.0f, 1.0f
@@ -122,6 +120,15 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 player.playSound(
                     player, "mvndicraft:soundscapes.soundtrack.siege", SoundCategory.MUSIC, 2.0f, 1.0f
                 )
+                lastPlayed[uuid] = System.currentTimeMillis()
+                return@runAtFixedRate
+            }
+
+            val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
+
+            val random = player.location.world.name == "italy_beta"
+            if (random) {
+                player.playSound(player, soundscapes.values.random(), SoundCategory.MUSIC, 2.0f, 1.0f)
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
             }
