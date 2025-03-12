@@ -1,6 +1,6 @@
 package net.mvndicraft.mvndisoundscapes
 
-import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
+import fr.formiko.mc.biomeutils.NMSBiomeUtils
 import org.bukkit.Material
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player

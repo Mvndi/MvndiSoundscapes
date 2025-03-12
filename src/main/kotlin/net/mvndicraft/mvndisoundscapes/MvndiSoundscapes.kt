@@ -2,7 +2,7 @@ package net.mvndicraft.mvndisoundscapes
 
 import com.gmail.goosius.siegewar.SiegeWarAPI
 import net.mvndicraft.mvndibattle.BattleTracker
-import net.mvndicraft.mvndiseasons.biomes.NMSBiomeUtils
+import fr.formiko.mc.biomeutils.NMSBiomeUtils
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -126,7 +126,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
 
             val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
 
-            val random = player.location.world.name == "italy_beta"
+            val random = true
             if (random) {
                 player.playSound(player, soundscapes.values.random(), SoundCategory.MUSIC, 2.0f, 1.0f)
                 lastPlayed[uuid] = System.currentTimeMillis()

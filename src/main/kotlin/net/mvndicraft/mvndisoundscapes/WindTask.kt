@@ -5,7 +5,7 @@ import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 
 class WindTask(private val plugin: MvndiSoundscapes) {
-    public fun run(player: Player) {
+    fun run(player: Player) {
         val lastWind = plugin.lastWind
         val delay = 8000L
         val to = player.location
