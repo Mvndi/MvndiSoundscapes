@@ -16,4 +16,4 @@ dependencies:
       required: false
     MvndiSeasons:
       load: BEFORE
-      required: true
+      required: false
