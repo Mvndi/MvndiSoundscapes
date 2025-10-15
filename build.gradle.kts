@@ -9,7 +9,9 @@ group = "net.mvndicraft"
 version = "1.0.0-SNAPSHOT"
 description = "A plugin template in kotlin."
 java.sourceCompatibility = JavaVersion.VERSION_21
-
+val mainMinecraftVersion = "1.21.4"
+val townyVersion = "0.101.0.2"
+val siegeWarVersion = "3.1.0"
 val mvndiRemote = repositories.maven("https://repo.mvndicraft.net/repository/maven-snapshots/") {
     name = "Mvndi"
     credentials {
@@ -37,13 +39,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:$mainMinecraftVersion-R0.1-SNAPSHOT")
     compileOnly("com.github.TownyAdvanced:SiegeWar:2.12.0")
     compileOnly("net.mvndicraft:mvndibattle:2.0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.8")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
-    testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.107.0")
 }
 
 val targetJavaVersion = 21
@@ -74,7 +74,21 @@ tasks {
     }
 
     runServer {
-        minecraftVersion("1.21.1")
+        downloadPlugins {
+            github(
+                "TownyAdvanced",
+                "Towny",
+                "$townyVersion",
+                "towny-$townyVersion.jar"
+            )
+            github(
+                "TownyAdvanced",
+                "SiegeWar",
+                "$siegeWarVersion",
+                "SiegeWar-$siegeWarVersion.jar"
+            )
+        }
+        minecraftVersion("$mainMinecraftVersion")
     }
 
     test {

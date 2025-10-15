@@ -27,10 +27,9 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
     fun run(player: Player) {
         val uuid = player.uniqueId
-        val delay = 8000L
         val lastAmbient = plugin.lastAmbient
 
-        if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < delay) return
+        if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < MvndiSoundscapes.AMBIENCE_DELAY) return
 
         if (player.location.y < 20 && MvndiSoundscapes.blockCount(player.location, 8, Material.AIR) >= 16) {
             val rand = (Math.random() * ((4) + 1)).toInt()

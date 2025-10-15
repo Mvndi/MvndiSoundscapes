@@ -2,7 +2,7 @@ name: $name
 version: $version
 main: net.mvndicraft.mvndisoundscapes.MvndiSoundscapes
 api-version: '1.21'
-authors: [ tlm920 ]
+authors: [ tlm920, ewof ]
 description: Core plugin for minigame management on Mvndicraft
 website: mvndicraft.net
 folia-supported: true
@@ -12,8 +12,5 @@ dependencies:
       load: BEFORE
       required: false
     MvndiBattle:
-      load: BEFORE
-      required: false
-    MvndiSeasons:
       load: BEFORE
       required: false

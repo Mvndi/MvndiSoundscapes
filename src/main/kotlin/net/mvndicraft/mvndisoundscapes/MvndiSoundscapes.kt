@@ -1,8 +1,8 @@
 package net.mvndicraft.mvndisoundscapes
 
 import com.gmail.goosius.siegewar.SiegeWarAPI
-import net.mvndicraft.mvndibattle.BattleTracker
 import fr.formiko.mc.biomeutils.NMSBiomeUtils
+import net.mvndicraft.mvndibattle.BattleTracker
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -14,39 +14,51 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.HashSet
 
 class MvndiSoundscapes : JavaPlugin(), Listener {
+    companion object {
+        const val MUSIC_DELAY = 420000L
+        const val AMBIENCE_DELAY = 8000L
+
+        fun blockCount(loc: Location, radius: Int, type: Material): Int {
+            var count = 0
+            for (x in loc.blockX - radius..loc.blockX + radius)
+                for (y in loc.blockY - radius..loc.blockY + radius)
+                    for (z in loc.blockZ - radius..loc.blockZ + radius)
+                        if (loc.world.getBlockAt(x, y, z).type == type) count++
+
+            return count
+        }
+    }
+
     val lastAmbient = ConcurrentHashMap<UUID, Long>()
     private val lastPlayed = ConcurrentHashMap<UUID, Long>()
     private val lastBattle = ConcurrentHashMap<UUID, Long>()
     val lastWind = ConcurrentHashMap<UUID, Long>()
     private val startedTasks = HashSet<UUID>()
     private var soundscapes = mapOf(
-        "mvndi:is_snowy" to "mvndicraft:soundscapes.soundtrack.snowy",
-        "nile" to "mvndicraft:soundscapes.soundtrack.egypt",
-        "arabian" to "mvndicraft:soundscapes.soundtrack.egypt",
-        "greece" to "mvndicraft:soundscapes.soundtrack.greece",
-        "italy" to "mvndicraft:soundscapes.soundtrack.italy",
-        "mvndi:is_plains" to "mvndicraft:soundscapes.soundtrack.plains",
-        "mvndi:central_europe" to "mvndicraft:soundscapes.soundtrack.germany",
-        "minecraft:is_forest" to "mvndicraft:soundscapes.soundtrack.forest",
-        "mvndi:is_desert" to "mvndicraft:soundscapes.soundtrack.desert",
-        "mvndi:is_mountain" to "mvndicraft:soundscapes.soundtrack.mountain",
-        "mvndi:is_hill" to "mvndicraft:soundscapes.soundtrack.mountains",
-        "minecraft:is_ocean" to "mvndicraft:soundscapes.soundtrack.ocean",
-        "mvndi:mediterranean_coast" to "mvndicraft:soundscapes.soundtrack.greece",
+        "minecraft:is_ocean" to "mvndicraft:music.battle.ocean_battle",
+
+        "mvndi:bandit_arabian" to "mvndicraft:music.battle.arabic",
+
+        "mvndi:bandit_western_european" to "mvndicraft:music.battle.european",
+        "mvndi:bandit_slav" to "mvndicraft:music.battle.european",
+
+        "mvndi:eastern_mediterranean_forest" to "mvndicraft:music.battle.greek",
+        "mvndi:eastern_mediterranean_plains" to "mvndicraft:music.battle.greek",
+
+        "mvndi:bandit_north_african" to "mvndicraft:music.battle.north_african",
+
+        "mvndi:bandit_scandinavian" to "mvndicraft:music.battle.northern_european",
     )
 
     override fun onEnable() {
-        // Plugin startup logic
         logger.info("Enabling MvndiSoundscapes")
         Bukkit.getPluginManager().registerEvents(this, this)
         startTasks()
     }
 
     override fun onDisable() {
-        // Plugin shutdown logic
         logger.info("Disabling MvndiSoundscapes")
     }
 
@@ -87,24 +99,31 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         startedTasks.add(uuid)
 
         player.scheduler.runAtFixedRate(this, {
-            if (Bukkit.getPluginManager().isPluginEnabled("MvndiBattle") && BattleTracker.getInstance()
-                    .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= 67000))
-            ) {
-                player.stopSound(SoundCategory.MUSIC)
-                player.playSound(
-                    player, "mvndicraft:soundscapes.soundtrack.battle", SoundCategory.MUSIC, 2.0f, 1.0f
-                )
-                lastBattle[uuid] = System.currentTimeMillis()
-                return@runAtFixedRate
-            }
-
-            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 41000 else 420000L) return@runAtFixedRate
+            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 41000 else MUSIC_DELAY) return@runAtFixedRate
 
             if (aether) {
                 player.playSound(
                     player, "mvndicraft:soundscapes.soundtrack.spawn", SoundCategory.MUSIC, 2.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
+                return@runAtFixedRate
+            }
+
+            if (Bukkit.getPluginManager().isPluginEnabled("MvndiBattle") && BattleTracker.getInstance()
+                    .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= MUSIC_DELAY))
+            ) {
+                player.stopSound(SoundCategory.MUSIC)
+                lastBattle[uuid] = System.currentTimeMillis()
+                val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
+
+                for (soundscape in soundscapes.keys) if (biomeKey != null) if (biomeKey.contains(soundscape) || NMSBiomeUtils.matchTag(
+                        biomeKey, soundscape
+                    )
+                ) {
+                    player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 2.0f, 1.0f)
+                    lastPlayed[uuid] = System.currentTimeMillis()
+                    return@runAtFixedRate
+                }
                 return@runAtFixedRate
             }
 
@@ -123,40 +142,6 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
             }
-
-            val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
-
-            val random = true
-            if (random) {
-                player.playSound(player, soundscapes.values.random(), SoundCategory.MUSIC, 2.0f, 1.0f)
-                lastPlayed[uuid] = System.currentTimeMillis()
-                return@runAtFixedRate
-            }
-
-            for (soundscape in soundscapes.keys) if (biomeKey != null) if (biomeKey.contains(soundscape) || NMSBiomeUtils.matchTag(
-                    biomeKey, soundscape
-                )
-            ) {
-                player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 2.0f, 1.0f)
-                lastPlayed[uuid] = System.currentTimeMillis()
-                return@runAtFixedRate
-            }
         }, null, 1L, 20L)
-    }
-
-    companion object {
-        fun blockCount(loc: Location, radius: Int, type: Material): Int {
-            var count = 0
-
-            for (x in loc.blockX - radius..loc.blockX + radius) {
-                for (y in loc.blockY - radius..loc.blockY + radius) {
-                    for (z in loc.blockZ - radius..loc.blockZ + radius) {
-                        if (loc.world.getBlockAt(x, y, z).type == type) count++
-                    }
-                }
-            }
-
-            return count
-        }
     }
 }
