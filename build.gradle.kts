@@ -9,7 +9,7 @@ group = "net.mvndicraft"
 version = "1.0.0-SNAPSHOT"
 description = "A plugin template in kotlin."
 java.sourceCompatibility = JavaVersion.VERSION_21
-val mainMinecraftVersion = "1.21.8"
+val mainMinecraftVersion = "1.21.1"
 val townyVersion = "0.101.0.2"
 val siegeWarVersion = "3.1.0"
 val mvndiRemote = repositories.maven("https://repo.mvndicraft.net/repository/maven-snapshots/") {
@@ -40,7 +40,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:$mainMinecraftVersion-R0.1-SNAPSHOT")
-    compileOnly("com.github.TownyAdvanced:SiegeWar:2.12.0")
+    compileOnly("com.github.TownyAdvanced:SiegeWar:2.19.3")
     compileOnly("net.mvndicraft:mvndibattle:2.0.1-SNAPSHOT")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.8")
