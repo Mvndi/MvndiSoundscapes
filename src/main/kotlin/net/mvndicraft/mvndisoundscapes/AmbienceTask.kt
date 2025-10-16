@@ -1,12 +1,13 @@
 package net.mvndicraft.mvndisoundscapes
 
 import fr.formiko.mc.biomeutils.NMSBiomeUtils
+import net.mvndicraft.mvndisoundscapes.MvndiSoundscapes.Companion.lastAmbient
 import org.bukkit.Material
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import kotlin.math.absoluteValue
 
-class AmbienceTask(private val plugin: MvndiSoundscapes) {
+class AmbienceTask() {
 
     private var ambience = mapOf(
         "mvndi:is_snowy" to "mvndicraft:soundscapes.ambient.surface.weather.snowy",
@@ -27,7 +28,6 @@ class AmbienceTask(private val plugin: MvndiSoundscapes) {
 
     fun run(player: Player) {
         val uuid = player.uniqueId
-        val lastAmbient = plugin.lastAmbient
 
         if (lastAmbient.containsKey(uuid) && System.currentTimeMillis() - lastAmbient[uuid]!! < MvndiSoundscapes.AMBIENCE_DELAY) return
 
