@@ -144,7 +144,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
 
             if (aether) {
                 player.playSound(
-                    player, "mvndicraft:soundscapes.soundtrack.spawn", SoundCategory.MUSIC, 2.0f, 1.0f
+                    player, "mvndicraft:music.main", SoundCategory.MUSIC, 2.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
@@ -171,7 +171,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
                 player.stopSound(SoundCategory.MUSIC)
                 player.playSound(
-                    player, "mvndicraft:soundscapes.soundtrack.cave", SoundCategory.MUSIC, 2.0f, 1.0f
+                    player, "mvndicraft:music.cave", SoundCategory.MUSIC, 2.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
