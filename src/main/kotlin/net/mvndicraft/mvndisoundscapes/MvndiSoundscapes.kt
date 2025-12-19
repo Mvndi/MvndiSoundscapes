@@ -13,7 +13,7 @@ import org.bukkit.Material
 import org.bukkit.SoundCategory
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
@@ -99,7 +99,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     }
 
     @EventHandler
-    fun onPlayerFirstMove(event: PlayerMoveEvent) {
+    fun onPlayerFirstMove(event: PlayerJoinEvent) {
         val player = event.player
         val uuid = player.uniqueId
         val aether = player.location.world.name == "aether"
@@ -140,11 +140,11 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 }
             }
 
-            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 41000 else MUSIC_DELAY) return@runAtFixedRate
+            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 204000 else MUSIC_DELAY) return@runAtFixedRate
 
             if (aether) {
                 player.playSound(
-                    player, "mvndicraft:music.main", SoundCategory.MUSIC, 2.0f, 1.0f
+                    player, "mvndicraft:music.main", SoundCategory.MUSIC, 1.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
@@ -161,7 +161,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                         biomeKey, soundscape
                     )
                 ) {
-                    player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 2.0f, 1.0f)
+                    player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 1.0f, 1.0f)
                     lastPlayed[uuid] = System.currentTimeMillis()
                     return@runAtFixedRate
                 }
@@ -171,7 +171,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
                 player.stopSound(SoundCategory.MUSIC)
                 player.playSound(
-                    player, "mvndicraft:music.cave", SoundCategory.MUSIC, 2.0f, 1.0f
+                    player, "mvndicraft:music.cave", SoundCategory.MUSIC, 1.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
