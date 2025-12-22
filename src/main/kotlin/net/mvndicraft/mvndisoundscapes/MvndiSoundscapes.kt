@@ -286,9 +286,9 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 return@runAtFixedRate
             }
 
-            player.stopSound(SoundCategory.MUSIC)
             for (region in regions) {
                 if (player.location.blockX in region.minX..region.maxX && player.location.blockZ in region.minZ..region.maxZ) {
+                    player.stopSound(SoundCategory.MUSIC)
                     player.playSound(player, region.sound, SoundCategory.MUSIC, 1.0f, 1.0f)
                     lastPlayed[uuid] = System.currentTimeMillis()
                     break
