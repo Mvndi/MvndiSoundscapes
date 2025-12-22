@@ -1,0 +1,155 @@
+music_delay: 420000
+ambience_delay: 8000
+aether_delay: 204000
+aether_world: aether
+aether_sound: mvndicraft:music.main
+cave:
+  y_threshold: 20
+  air_threshold: 64
+  radius: 8
+  sound: mvndicraft:music.cave
+siege:
+  briefing_seconds: 72
+  end_seconds: 182
+  attackers_advance_duration: 46
+  briefing_sound: mvndicraft:music.siege.briefing
+  end_sound: mvndicraft:music.siege.end
+  attackers_advance_sound: mvndicraft:music.siege.attackers_advance
+biome_tags:
+  minecraft:is_ocean: mvndicraft:music.battle.naval
+  mvndi:bandit_arabian: mvndicraft:music.battle.arabic
+  mvndi:bandit_western_european: mvndicraft:music.battle.european
+  mvndi:bandit_slav: mvndicraft:music.battle.european
+  mvndi:eastern_mediterranean_forest: mvndicraft:music.battle.greek
+  mvndi:eastern_mediterranean_plains: mvndicraft:music.battle.greek
+  mvndi:bandit_north_african: mvndicraft:music.battle.north_african
+  mvndi:bandit_scandinavian: mvndicraft:music.battle.northern_european
+battle_regions:
+  northern_european:
+    enabled: true
+    sound: mvndicraft:music.battle.northern_european
+    x: 84992
+    z: 21792
+    x_1: 122750
+    z_1: 8192
+  greek:
+    enabled: true
+    sound: mvndicraft:music.battle.greek
+    x: 110336
+    z: 28928
+    x_1: 123520
+    z_1: 36096
+  arabic:
+    enabled: true
+    sound: mvndicraft:music.battle.arabic
+    x: 118944
+    z: 34560
+    x_1: 135167
+    z_1: 51199
+  european:
+    enabled: true
+    sound: mvndicraft:music.battle.european
+    x: 84992
+    z: 8192
+    x_1: 135167
+    z_1: 34624
+  north_african:
+    enabled: true
+    sound: mvndicraft:music.battle.north_african
+    x: 84992
+    z: 33792
+    x_1: 118944
+    z_1: 51199
+# these are all disabled bc theyre currently handled with datapack
+regions:
+  german:
+    enabled: false
+    sound: mvndicraft:music.overworld.german
+    x: 103384
+    z: 21807
+    x_1: 109816
+    z_1: 27630
+  french:
+    enabled: false
+    sound: mvndicraft:music.overworld.french
+    x: 93584
+    z: 22911
+    x_1: 103472
+    z_1: 30413
+  spanish:
+    enabled: false
+    sound: mvndicraft:music.overworld.spanish
+    x: 94192
+    z: 29535
+    x_1: 102448
+    z_1: 34654
+  iraq:
+    enabled: false
+    sound: mvndicraft:music.overworld.iraq
+    x: 118976
+    z: 34607
+    x_1: 125920
+    z_1: 39326
+  balkan:
+    enabled: false
+    sound: mvndicraft:music.overworld.balkan
+    x: 107536
+    z: 27967
+    x_1: 116352
+    z_1: 30142
+  italy:
+    enabled: false
+    sound: mvndicraft:music.overworld.italy
+    x: 103232
+    z: 27887
+    x_1: 110320
+    z_1: 34525
+  greek:
+    enabled: false
+    sound: mvndicraft:music.overworld.greek
+    x: 110224
+    z: 30750
+    x_1: 123264
+    z_1: 36349
+  persian:
+    enabled: false
+    sound: mvndicraft:music.overworld.persian
+    x: 123024
+    z: 29919
+    x_1: 135167
+    z_1: 41949
+  egyptian:
+    enabled: false
+    sound: mvndicraft:music.overworld.egyptian
+    x: 113102
+    z: 37374
+    x_1: 121456
+    z_1: 51199
+  yemen:
+    enabled: false
+    sound: mvndicraft:music.overworld.yemen
+    x: 119456
+    z: 40160
+    x_1: 134272
+    z_1: 51199
+  northern_europe:
+    enabled: false
+    sound: mvndicraft:music.overworld.northern_europe
+    x: 84992
+    z: 23022
+    x_1: 115520
+    z_1: 8192
+  eastern_europe:
+    enabled: false
+    sound: mvndicraft:music.overworld.eastern_europe
+    x: 109760
+    z: 8192
+    x_1: 135167
+    z_1: 30526
+  maghreb:
+    enabled: false
+    sound: mvndicraft:music.overworld.maghreb
+    x: 89748
+    z: 34018
+    x_1: 113102
+    z_1: 51199

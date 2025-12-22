@@ -14,3 +14,6 @@ dependencies:
     MvndiBattle:
       load: BEFORE
       required: false
+    MvndiCore:
+      load: BEFORE
+      required: false

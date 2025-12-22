@@ -41,6 +41,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:$mainMinecraftVersion-R0.1-SNAPSHOT")
     compileOnly("com.github.TownyAdvanced:SiegeWar:2.19.3")
+    compileOnly("net.mvndicraft:mvndicore:2.0.0-SNAPSHOT")
     compileOnly("net.mvndicraft:mvndibattle:2.0.1-SNAPSHOT")
     implementation("net.jodah:expiringmap:0.5.11")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

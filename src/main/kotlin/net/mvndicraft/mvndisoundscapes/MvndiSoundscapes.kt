@@ -7,6 +7,8 @@ import com.palmergames.bukkit.towny.`object`.Government
 import fr.formiko.mc.biomeutils.NMSBiomeUtils
 import net.jodah.expiringmap.ExpiringMap
 import net.mvndicraft.mvndibattle.BattleTracker
+import net.mvndicraft.mvndicore.MvndiCore
+import net.mvndicraft.mvndicore.commands.subcommands.ReloadCommand
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -19,11 +21,29 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
+
+data class Region(val minX: Int, val maxX: Int, val minZ: Int, val maxZ: Int, val sound: String)
 
 class MvndiSoundscapes : JavaPlugin(), Listener {
     companion object {
-        const val MUSIC_DELAY = 420000L
-        const val AMBIENCE_DELAY = 8000L
+        var musicDelay: Long = 420000L
+        var ambienceDelay: Long = 8000L
+        var aetherDelay: Long = 204000L
+        var aetherWorldName: String = "aether"
+        var aetherSound: String = "mvndicraft:music.main"
+        var caveYThreshold: Int = 20
+        var caveAirThreshold: Int = 64
+        var caveRadius: Int = 8
+        var caveSound: String = "mvndicraft:music.cave"
+        var siegeBriefingSeconds: Long = 72L
+        var siegeEndSeconds: Long = 182L
+        var siegeAttackersAdvanceDuration: Long = 46L
+        var siegeBriefingSound: String = "mvndicraft:music.siege.briefing"
+        var siegeEndSound: String = "mvndicraft:music.siege.end"
+        var siegeAttackersAdvanceSound: String = "mvndicraft:music.siege.attackers_advance"
+        var soundscapes: Map<String, String> = emptyMap()
 
         fun blockCount(loc: Location, radius: Int, type: Material): Int {
             var count = 0
@@ -43,34 +63,108 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
         private val lastBattle = ConcurrentHashMap<UUID, Long>()
         private val startedTasks = HashSet<UUID>()
         private val siegesPlayingAttackersAdvancing =
-            ExpiringMap.builder().expiration(46, TimeUnit.SECONDS).build<UUID, Boolean>()
-        private var soundscapes = mapOf(
-            "minecraft:is_ocean" to "mvndicraft:music.battle.ocean_battle",
-
-            "mvndi:bandit_arabian" to "mvndicraft:music.battle.arabic",
-
-            "mvndi:bandit_western_european" to "mvndicraft:music.battle.european",
-            "mvndi:bandit_slav" to "mvndicraft:music.battle.european",
-
-            "mvndi:eastern_mediterranean_forest" to "mvndicraft:music.battle.greek",
-            "mvndi:eastern_mediterranean_plains" to "mvndicraft:music.battle.greek",
-
-            "mvndi:bandit_north_african" to "mvndicraft:music.battle.north_african",
-
-            "mvndi:bandit_scandinavian" to "mvndicraft:music.battle.northern_european",
-        )
+            ExpiringMap.builder().variableExpiration().expiration(siegeAttackersAdvanceDuration, TimeUnit.SECONDS)
+                .build<UUID, Boolean>()
+        var battleRegions: List<Region> = emptyList()
+        var regions: List<Region> = emptyList()
     }
 
     override fun onEnable() {
         logger.info("Enabling MvndiSoundscapes")
-        Bukkit.getPluginManager().registerEvents(this, this)
-        if (Bukkit.getPluginManager().isPluginEnabled("SiegeWar")) Bukkit.getPluginManager()
-            .registerEvents(SiegeWarListener(), this)
+        saveDefaultConfig()
+        loadConfig()
+        val pm = Bukkit.getPluginManager()
+        pm.registerEvents(this, this)
+        if (pm.isPluginEnabled("SiegeWar")) pm.registerEvents(SiegeWarListener(), this)
         startTasks()
+        if (pm.isPluginEnabled("MvndiCore")) {
+            MvndiCore.getInstance().registerModule("MvndiSoundscapes")
+            MvndiCore.getInstance().registerSubCommand(ReloadCommand("soundscapes", this))
+        }
     }
 
     override fun onDisable() {
         logger.info("Disabling MvndiSoundscapes")
+    }
+
+    override fun reloadConfig() {
+        super.reloadConfig()
+        loadConfig()
+    }
+
+    private fun loadConfig() {
+        val config = getConfig()
+        musicDelay = config.getLong("music_delay", 420000L)
+        ambienceDelay = config.getLong("ambience_delay", 8000L)
+        aetherDelay = config.getLong("aether_delay", 204000L)
+        aetherWorldName = config.getString("aether_world", "aether")!!
+        aetherSound = config.getString("aether_sound", "mvndicraft:music.main")!!
+        caveYThreshold = config.getInt("cave.y_threshold", 20)
+        caveAirThreshold = config.getInt("cave.air_threshold", 64)
+        caveRadius = config.getInt("cave.radius", 8)
+        caveSound = config.getString("cave.sound", "mvndicraft:music.cave")!!
+        siegeBriefingSeconds = config.getLong("siege.briefing_seconds", 72L)
+        siegeEndSeconds = config.getLong("siege.end_seconds", 182L)
+        siegeAttackersAdvanceDuration = config.getLong("siege.attackers_advance_duration", 46L)
+        siegeBriefingSound = config.getString("siege.briefing_sound", "mvndicraft:music.siege.briefing")!!
+        siegeEndSound = config.getString("siege.end_sound", "mvndicraft:music.siege.end")!!
+        siegeAttackersAdvanceSound =
+            config.getString("siege.attackers_advance_sound", "mvndicraft:music.siege.attackers_advance")!!
+
+        val soundscapesMap = mutableMapOf<String, String>()
+        val biomeSec = config.getConfigurationSection("biome_tags")
+        if (biomeSec != null) {
+            for (key in biomeSec.getKeys(false)) {
+                soundscapesMap[key] = biomeSec.getString(key)!!
+            }
+        }
+        soundscapes = soundscapesMap
+
+        val battleRegionList = mutableListOf<Region>()
+        val battleSec = config.getConfigurationSection("battle_regions")
+        if (battleSec != null) {
+            for (key in battleSec.getKeys(false)) {
+                val section = battleSec.getConfigurationSection(key)!!
+                val enabled = section.getBoolean("enabled")
+                if (enabled) {
+                    val sound = section.getString("sound")!!
+                    val x = section.getInt("x")
+                    val z = section.getInt("z")
+                    val x1 = section.getInt("x_1")
+                    val z1 = section.getInt("z_1")
+                    val minX = min(x, x1)
+                    val maxX = max(x, x1)
+                    val minZ = min(z, z1)
+                    val maxZ = max(z, z1)
+                    battleRegionList.add(Region(minX, maxX, minZ, maxZ, sound))
+                }
+            }
+        }
+        battleRegions = battleRegionList
+
+        val regionList = mutableListOf<Region>()
+        val regionsSec = config.getConfigurationSection("regions")
+        if (regionsSec != null) {
+            for (key in regionsSec.getKeys(false)) {
+                val section = regionsSec.getConfigurationSection(key)!!
+                val enabled = section.getBoolean("enabled")
+                if (enabled) {
+                    val sound = section.getString("sound")!!
+                    val x = section.getInt("x")
+                    val z = section.getInt("z")
+                    val x1 = section.getInt("x_1")
+                    val z1 = section.getInt("z_1")
+                    val minX = min(x, x1)
+                    val maxX = max(x, x1)
+                    val minZ = min(z, z1)
+                    val maxZ = max(z, z1)
+                    regionList.add(Region(minX, maxX, minZ, maxZ, sound))
+                }
+            }
+        }
+        regions = regionList
+
+        siegesPlayingAttackersAdvancing.setExpiration(siegeAttackersAdvanceDuration, TimeUnit.SECONDS)
     }
 
     private fun startTasks() {
@@ -81,7 +175,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
             Bukkit.getOnlinePlayers().forEach { player ->
                 player.scheduler.run(this, {
                     ambience.run(player)
-                    if (player.location.world.name != "aether") wind.run(player)
+                    if (player.location.world.name != aetherWorldName) wind.run(player)
                 }, null)
             }
         }, 1L, 1L)
@@ -102,7 +196,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
     fun onPlayerFirstMove(event: PlayerJoinEvent) {
         val player = event.player
         val uuid = player.uniqueId
-        val aether = player.location.world.name == "aether"
+        val aether = player.location.world.name == aetherWorldName
 
         if (startedTasks.contains(uuid)) return
 
@@ -110,16 +204,16 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
 
         player.scheduler.runAtFixedRate(this, {
             if (Bukkit.getPluginManager().isPluginEnabled("SiegeWar") && SiegeWarAPI.getSiege(player).isPresent) {
-                if (!BattleSession.getBattleSession().isActive && BattleSession.getBattleSession().scheduledStartTime != null && BattleSession.getBattleSession().scheduledStartTime!! <= (1000L * 72L)) {
+                if (!BattleSession.getBattleSession().isActive && BattleSession.getBattleSession().scheduledStartTime != null && BattleSession.getBattleSession().scheduledStartTime!! <= (1000L * siegeBriefingSeconds)) {
                     playedSiegeBriefing = true
                     player.stopSound(SoundCategory.MUSIC)
-                    player.playSound(player, "mvndicraft:music.siege.briefing", SoundCategory.MUSIC, 1.0f, 1.0f)
+                    player.playSound(player, siegeBriefingSound, SoundCategory.MUSIC, 1.0f, 1.0f)
                     lastPlayed[uuid] = System.currentTimeMillis()
                     return@runAtFixedRate
-                } else if (BattleSession.getBattleSession().isActive && BattleSession.getBattleSession().timeRemainingUntilBattleSessionEnds <= (1000L * 182L) && !playedSiegeEnd) {
+                } else if (BattleSession.getBattleSession().isActive && BattleSession.getBattleSession().timeRemainingUntilBattleSessionEnds <= (1000L * siegeEndSeconds) && !playedSiegeEnd) {
                     playedSiegeEnd = true
                     player.stopSound(SoundCategory.MUSIC)
-                    player.playSound(player, "mvndicraft:music.siege.end", SoundCategory.MUSIC, 1.0f, 1.0f)
+                    player.playSound(player, siegeEndSound, SoundCategory.MUSIC, 1.0f, 1.0f)
                     lastPlayed[uuid] = System.currentTimeMillis()
                     return@runAtFixedRate
                 }
@@ -132,7 +226,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                     }) {
                     player.stopSound(SoundCategory.MUSIC)
                     player.playSound(
-                        player, "mvndicraft:music.siege.attackers_advance", SoundCategory.MUSIC, 1.0f, 1.0f
+                        player, siegeAttackersAdvanceSound, SoundCategory.MUSIC, 1.0f, 1.0f
                     )
                     lastPlayed[uuid] = System.currentTimeMillis()
                     siegesPlayingAttackersAdvancing[town.uuid] = true
@@ -140,41 +234,65 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                 }
             }
 
-            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) 204000 else MUSIC_DELAY) return@runAtFixedRate
-
-            if (aether) {
-                player.playSound(
-                    player, "mvndicraft:music.main", SoundCategory.MUSIC, 1.0f, 1.0f
-                )
-                lastPlayed[uuid] = System.currentTimeMillis()
-                return@runAtFixedRate
-            }
-
             if (Bukkit.getPluginManager().isPluginEnabled("MvndiBattle") && BattleTracker.getInstance()
-                    .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= MUSIC_DELAY))
+                    .isInBattle(player.uniqueId) && (!lastBattle.containsKey(uuid) || (System.currentTimeMillis() - lastBattle[uuid]!! >= musicDelay))
             ) {
                 player.stopSound(SoundCategory.MUSIC)
                 lastBattle[uuid] = System.currentTimeMillis()
                 val biomeKey = NMSBiomeUtils.getBiomeKeyString(player.location)
-
-                for (soundscape in soundscapes.keys) if (biomeKey != null) if (biomeKey.contains(soundscape) || NMSBiomeUtils.matchTag(
-                        biomeKey, soundscape
-                    )
-                ) {
-                    player.playSound(player, soundscapes[soundscape]!!, SoundCategory.MUSIC, 1.0f, 1.0f)
-                    lastPlayed[uuid] = System.currentTimeMillis()
-                    return@runAtFixedRate
+                var played = false
+                if (biomeKey != null) {
+                    for ((key, sound) in soundscapes) {
+                        if (biomeKey.contains(key) || NMSBiomeUtils.matchTag(biomeKey, key)) {
+                            player.playSound(player, sound, SoundCategory.MUSIC, 1.0f, 1.0f)
+                            lastPlayed[uuid] = System.currentTimeMillis()
+                            played = true
+                            break
+                        }
+                    }
+                }
+                if (!played) {
+                    for (region in battleRegions) {
+                        if (player.location.blockX in region.minX..region.maxX && player.location.blockZ in region.minZ..region.maxZ) {
+                            player.playSound(player, region.sound, SoundCategory.MUSIC, 1.0f, 1.0f)
+                            lastPlayed[uuid] = System.currentTimeMillis()
+                            played = true
+                            break
+                        }
+                    }
                 }
                 return@runAtFixedRate
             }
 
-            if (player.location.y < 20 && blockCount(player.location, 8, Material.AIR) >= 64) {
-                player.stopSound(SoundCategory.MUSIC)
+            if (lastPlayed.containsKey(uuid) && System.currentTimeMillis() - lastPlayed[uuid]!! < if (aether) aetherDelay else musicDelay) return@runAtFixedRate
+
+            if (aether) {
                 player.playSound(
-                    player, "mvndicraft:music.cave", SoundCategory.MUSIC, 1.0f, 1.0f
+                    player, aetherSound, SoundCategory.MUSIC, 1.0f, 1.0f
                 )
                 lastPlayed[uuid] = System.currentTimeMillis()
                 return@runAtFixedRate
+            }
+
+            if (player.location.y < caveYThreshold && blockCount(
+                    player.location, caveRadius, Material.AIR
+                ) >= caveAirThreshold
+            ) {
+                player.stopSound(SoundCategory.MUSIC)
+                player.playSound(
+                    player, caveSound, SoundCategory.MUSIC, 1.0f, 1.0f
+                )
+                lastPlayed[uuid] = System.currentTimeMillis()
+                return@runAtFixedRate
+            }
+
+            player.stopSound(SoundCategory.MUSIC)
+            for (region in regions) {
+                if (player.location.blockX in region.minX..region.maxX && player.location.blockZ in region.minZ..region.maxZ) {
+                    player.playSound(player, region.sound, SoundCategory.MUSIC, 1.0f, 1.0f)
+                    lastPlayed[uuid] = System.currentTimeMillis()
+                    break
+                }
             }
         }, null, 1L, 20L)
     }
