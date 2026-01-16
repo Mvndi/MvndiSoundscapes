@@ -45,7 +45,7 @@ dependencies {
     compileOnly("net.mvndicraft:mvndibattle:2.0.1-SNAPSHOT")
     implementation("net.jodah:expiringmap:0.5.11")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.8")
+    implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.14")
 }
 
 val targetJavaVersion = 21
