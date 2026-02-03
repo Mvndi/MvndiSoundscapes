@@ -77,8 +77,10 @@ class AmbienceTask() {
             if (y < 100 && wind) return 0.0f
 
             val f = lerp(0.0f, 1.0f, (y.toFloat().absoluteValue / 256))
-            if (wind) return String.format("%.1f", f).toFloat()
-            return 1.0f - String.format("%.1f", f).toFloat()
+            // 1 number after decimal.
+            // Do not use String.format("%.1f", f) which will fail with some system locale and require more process time.
+            val rounded = kotlin.math.round(f * 10f) / 10f 
+            return if (wind) rounded else 1.0f - rounded
         }
     }
 }
