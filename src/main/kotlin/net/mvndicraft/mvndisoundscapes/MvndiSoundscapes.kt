@@ -178,7 +178,7 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                     if (player.location.world.name != aetherWorldName) wind.run(player)
                 }, null)
             }
-        }, 1L, 1L)
+        }, 1L, 20L * 10L)
     }
 
     @EventHandler
