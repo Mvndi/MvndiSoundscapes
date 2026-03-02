@@ -260,6 +260,11 @@ class MvndiSoundscapes : JavaPlugin(), Listener {
                             break
                         }
                     }
+                } else {
+                    player.scheduler.runDelayed(this, {
+                        if (!BattleTracker.getInstance().isInBattle(player.uniqueId))
+                            player.stopSound(SoundCategory.MUSIC)
+                    }, null, 20L * 30L)
                 }
                 return@runAtFixedRate
             }
